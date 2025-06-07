@@ -44,7 +44,7 @@ public class BrushController : MonoBehaviour
 
         var availableColor = palette.Colors.ToList();
 
-        if (numberOfColors < palette.Colors.Length)
+        if (numberOfColors < palette.Colors.Count)
         {
             availableColor.Shuffle();
         }
@@ -65,7 +65,7 @@ public class BrushController : MonoBehaviour
     {
         if (int.TryParse(input, out var numberOfColors))
         {
-            numberOfColors = Mathf.Clamp(numberOfColors, 1, palette.Colors.Length);
+            numberOfColors = Mathf.Clamp(numberOfColors, 1, palette.Colors.Count);
             InitializePaletteUI(numberOfColors);
             window.SetActive(false);
         }
@@ -107,14 +107,17 @@ public class BrushController : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetMouseButtonDown(0) == false)
+            return;
+
         var cursorPosition = paintCamera.ScreenToWorldPoint(Input.mousePosition);
         Vector3Int cellPosition = brushView.paintTilemap.WorldToCell(cursorPosition);
         cellPosition.z = 0;
 
-        if (Input.GetMouseButtonDown(0) && IsInBounds(cellPosition))
-        {
-            brushView.PaintCell(cellPosition, _brushModel.CurrentBrush);
-        }
+        if (IsInBounds(cellPosition) == false)
+            return;
+
+        brushView.PaintCell(cellPosition, _brushModel.CurrentBrush);
     }
 
     private bool IsInBounds(Vector3Int position) => position.x >= 0 && position.x < fieldSize.x && position.y >= 0 && position.y < fieldSize.y;
